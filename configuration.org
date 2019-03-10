@@ -1,0 +1,264 @@
+# -*- mode: org; -*-
+#+STARTUP: showall indent logdone oddeven showstars
+
+* Note preliminari
+Primo tentativo di avere una literate documentation, vediamo come va
+** Alcuni link utili
+- http://www.holgerschurig.de/en/emacs-init-tangle/
+- http://www.holgerschurig.de/en/emacs-efficiently-untangling-elisp/
+- http://pages.sachachua.com/.emacs.d/Sacha.html#org332b2fd
+- https://github.com/novoid/dot-emacs
+- https://karl-voit.at/2017/06/03/emacs-org/
+- https://jamiecollinson.com/blog/my-emacs-config/
+- https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org#bootstrap
+- https://www.reddit.com/r/emacs/comments/83usco/literate_emacs_config_in_orgmode/
+- https://harryrschwartz.com/2016/02/15/switching-to-a-literate-emacs-configuration
+- https://github.com/wasamasa/dotemacs/blob/master/init.org
+* Settings utente
+#+BEGIN_SRC emacs-lisp
+(setq user-full-name "Simone Guercio"
+  user-mail-address "s.guercio@gmail.com")
+#+END_SRC
+
+* Gestione pacchetti
+** Configuro le sorgenti per i pacchetti
+- Mi assicuro che il mio emacs abbia il pacchetto package.el (qualsiasi emacs > 25)(dovrei forse inserire un fallback?)
+- Aggiungoo melpa (bleeding edge) e Org
+#+BEGIN_SRC emacs-lisp
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+(add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
+(setq package-enable-at-startup nil)
+(package-initialize)
+#+END_SRC
+
+** mi accerto che ci sia use-package
+#+BEGIN_SRC emacs-lisp
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+(setq use-package-verbose t)
+(setq use-package-always-ensure t)
+(require 'use-package)
+#+END_SRC
+
+** Tempo in modeline
+#+BEGIN_SRC emacs-lisp
+(setq display-time-day-and-date t)
+(setq display-time-24hr-format t)
+(setq display-time-format "%H:%M %d/%m/%y")
+(setq display-time-default-load-average nil)
+(display-time-mode 1)
+#+END_SRC
+
+* customizzazione da gui solo temporanea
+#+BEGIN_SRC emacs-lisp
+(setq custom-file (make-temp-file "emacs-custom"))
+#+END_SRC
+
+* Customizzazioni grafiche
+** Niente splash screen
+#+BEGIN_SRC emacs-lisp
+(setq inhibit-startup-screen t)
+#+END_SRC
+
+** Niente toolbars
+#+BEGIN_SRC emacs-lisp
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+#+END_SRC
+
+** font
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'default-frame-alist '(font . "Hack-12" ))
+(set-face-attribute 'default t :font "Hack-12" )
+#+END_SRC
+
+** tema
+#+BEGIN_SRC emacs-lisp
+(load-theme 'base16-railscasts t)
+#+END_SRC
+
+* Tramp
+#+BEGIN_SRC emacs-lisp
+(setq tramp-default-method "ssh")
+#+END_SRC
+
+* Web mode
+#+BEGIN_SRC emacs-lisp
+(require 'web-mode)
+(add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.css\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.scss\\'" . web-mode))
+(setq web-mode-markup-indent-offset 2)
+(setq web-mode-css-indent-offset 2)
+(setq web-mode-code-indent-offset 2)
+(setq web-mode-enable-current-element-highlight t)
+(setq web-mode-enable-current-column-highlight t)
+#+END_SRC
+
+* Misc 
+#+BEGIN_SRC emacs-lisp
+;; Misc
+(setq column-number-mode t)
+(setq line-number-mode t)
+;; Tabs are evil
+(setq-default indent-tabs-mode nil)
+;; Ido mode
+(setq ido-enable-flex-matching t)
+(setq ido-everywhere t)
+(ido-mode 1)
+(setq ido-create-new-buffer 'always)
+;; Truncated lines
+;;(setq-default truncate-lines t)
+(toggle-truncate-lines -1)
+(pdf-tools-install)
+
+(require 'powerline)
+(powerline-default-theme)
+
+;;ido vertical
+(require 'ido-vertical-mode)
+(ido-vertical-mode 1)
+(setq browse-url-browser-function 'browse-url-generic
+      browse-url-generic-program "xdg-open")
+#+END_SRC
+
+* Python
+#+BEGIN_SRC emacs-lisp
+(require 'elpy)
+(elpy-enable)
+(require 'flycheck)
+(when (require 'flycheck nil t)
+  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+  (add-hook 'elpy-mode-hook 'flycheck-mode))
+(setq elpy-rpc-python-command "/usr/bin/python3")
+(setq python-shell-interpreter "/usr/bin/python3"
+      python-shell-interpreter-args "-i")
+(defvaralias 'flycheck-python-flake8-executable 'python-shell-interpreter)
+#+END_SRC
+
+* Org mode varie
+#+BEGIN_SRC emacs-lisp
+(setq org-agenda-span 15)
+(setq org-agenda-start-on-weekday 1)
+(setq calendar-week-start-day 1)
+(define-key global-map "\C-ca" 'org-agenda)
+(setq org-todo-keywords
+  '((sequence "TODO" "FEEDBACK" "VERIFY" "|" "DONE" "DELEGATED")))
+
+(with-eval-after-load 'org
+  (require 'ox-md))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; org-mode agenda options                                                ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;open agenda in current window
+(setq org-agenda-window-setup (quote current-window))
+;;warn me of any deadlines in next 7 days
+(setq org-deadline-warning-days 7)
+;;show me tasks scheduled or due in next fortnight
+(setq org-agenda-span (quote fortnight))
+;;don't show tasks as scheduled if they are already shown as a deadline
+(setq org-agenda-skip-scheduled-if-deadline-is-shown t)
+;;don't give awarning colour to tasks with impending deadlines
+;;if they are scheduled to be done
+(setq org-agenda-skip-deadline-prewarning-if-scheduled (quote pre-scheduled))
+;;don't show tasks that are scheduled or have deadlines in the
+;;normal todo list
+;(setq org-agenda-todo-ignore-deadlines (quote all))
+;(setq org-agenda-todo-ignore-scheduled (quote all))
+;;sort tasks in order of when they are due and then by priority
+;(setq org-agenda-sorting-strategy
+;  (quote
+;   ((agenda deadline-up priority-down)
+;    (todo priority-down category-keep)
+;    (tags priority-down category-keep)
+;    (search category-keep))))
+#+END_SRC
+
+* Backups
+#+BEGIN_SRC emacs-lisp
+(setq backup-directory-alist '(("." . "~/.emacs.d/backups"))
+  backup-by-copying t    ; Don't delink hardlinks
+  version-control t      ; Use version numbers on backups
+  delete-old-versions t  ; Automatically delete excess backups
+  kept-new-versions 20   ; how many of the newest versions to keep
+  kept-old-versions 5    ; and how many of the old
+)
+#+END_SRC
+
+* undo
+#+BEGIN_SRC emacs-lisp
+(use-package undo-tree
+  :diminish undo-tree-mode
+  :config
+  (progn
+    (global-undo-tree-mode)
+    (setq undo-tree-visualizer-timestamps t)
+    (setq undo-tree-visualizer-diff t)))
+#+END_SRC
+
+* expand-region
+#+BEGIN_SRC emacs-lisp
+(use-package expand-region
+  :ensure t
+  :bind ("C-=" . er/expand-region))
+#+END_SRC
+
+* muovi inizio linea
+#+BEGIN_SRC emacs-lisp
+(defun smarter-move-beginning-of-line (arg)
+  "Move point back to indentation of beginning of line.
+
+Move point to the first non-whitespace character on this line.
+If point is already there, move to the beginning of the line.
+Effectively toggle between the first non-whitespace character and
+the beginning of the line.
+
+If ARG is not nil or 1, move forward ARG - 1 lines first.  If
+point reaches the beginning or end of the buffer, stop there."
+  (interactive "^p")
+  (setq arg (or arg 1))
+
+  ;; Move lines first
+  (when (/= arg 1)
+    (let ((line-move-visual nil))
+      (forward-line (1- arg))))
+
+  (let ((orig-point (point)))
+    (back-to-indentation)
+    (when (= orig-point (point))
+      (move-beginning-of-line 1))))
+
+;; remap C-a to `smarter-move-beginning-of-line'
+(global-set-key [remap move-beginning-of-line]
+                'smarter-move-beginning-of-line)
+
+#+END_SRC
+
+* markdown
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-mode
+  :ensure t
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
+#+END_SRC
+
+* eshell
+#+BEGIN_SRC emacs-lisp
+(setq eshell-prompt-function (lambda nil
+  (concat
+   (propertize (eshell/pwd) 'face `(:foreground "blue"))
+   (propertize " $ " 'face `(:foreground "green")))))
+(setq eshell-highlight-prompt nil)
+#+END_SRC
