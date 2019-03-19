@@ -69,8 +69,8 @@ Primo tentativo di avere una literate documentation, vediamo come va
 
 ** font
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'default-frame-alist '(font . "Hack-12" ))
-(set-face-attribute 'default t :font "Hack-12" )
+(add-to-list 'default-frame-alist '(font . "Hack-11" ))
+(set-face-attribute 'default t :font "Hack-11" )
 #+END_SRC
 
 ** tema
@@ -261,4 +261,42 @@ point reaches the beginning or end of the buffer, stop there."
    (propertize (eshell/pwd) 'face `(:foreground "blue"))
    (propertize " $ " 'face `(:foreground "green")))))
 (setq eshell-highlight-prompt nil)
+#+END_SRC
+
+* switch windows
+https://github.com/dimitri/switch-window
+#+BEGIN_SRC emacs-lisp
+(require 'switch-window)
+(global-set-key (kbd "C-x o") 'switch-window)
+(setq switch-window-multiple-frames t)
+(setq switch-window-shortcut-style 'qwerty)
+(setq switch-window-qwerty-shortcuts '("a" "r" "s" "t" "d" "h" "n" "e" "i" "o" "w" "f" "g" "j" "l" "q" "u" "y" ";"))
+;(global-set-key (kbd "C-x 1") 'switch-window-then-maximize)
+;(global-set-key (kbd "C-x 2") 'switch-window-then-split-below)
+;(global-set-key (kbd "C-x 3") 'switch-window-then-split-right)
+;(global-set-key (kbd "C-x 0") 'switch-window-then-delete)
+
+;(global-set-key (kbd "C-x 4 d") 'switch-window-then-dired)
+;(global-set-key (kbd "C-x 4 f") 'switch-window-then-find-file)
+;(global-set-key (kbd "C-x 4 m") 'switch-window-then-compose-mail)
+;(global-set-key (kbd "C-x 4 r") 'switch-window-then-find-file-read-only)
+
+;(global-set-key (kbd "C-x 4 C-f") 'switch-window-then-find-file)
+;(global-set-key (kbd "C-x 4 C-o") 'switch-window-then-display-buffer)
+
+;(global-set-key (kbd "C-x 4 0") 'switch-window-then-kill-buffer)
+#+END_SRC
+
+* Visual bell
+https://www.emacswiki.org/emacs/AlarmBell
+The alarm bell was starting to get on my coworkers nerves, so I switched to the visual bell for my modeline
+#+BEGIN_SRC emacs-lisp
+(setq visible-bell nil
+      ring-bell-function 'double-flash-mode-line)
+(defun double-flash-mode-line ()
+  (let ((flash-sec (/ 1.0 20)))
+    (invert-face 'mode-line)
+    (run-with-timer flash-sec nil #'invert-face 'mode-line)
+    (run-with-timer (* 2 flash-sec) nil #'invert-face 'mode-line)
+    (run-with-timer (* 3 flash-sec) nil #'invert-face 'mode-line)))
 #+END_SRC
